@@ -8,32 +8,32 @@
 
 
 #include <iostream>
-#include <vector>
 
 struct Point {
     double x, y;
 };
 
-double calculate_square(const std::vector<Point>& points) {
+double calculate_square(const Point *points, int size) {
     double square = 0;
 
-    for (int i = 0; i != points.size() - 1; ++i) {
+    for (int i = 0; i != size - 1; ++i) {
         square += 0.5 * (points[i].x - points[i + 1].x) * (points[i].y + points[i + 1].y);
     }
-    square += 0.5 * (points[points.size() - 1].x - points[0].x) * (points[points.size() - 1].y + points[0].y);
+    square += 0.5 * (points[size - 1].x - points[0].x) * (points[size - 1].y + points[0].y);
     return std::abs(square);
 }
 
 int main(int argc, char **argv) {
     int n;
 
-    std::vector<Point> coordinates(n);
     std::cin >> n;
-    coordinates.resize(n);
+
+    Point *coordinates = new Point[n];
     for (int i = 0; i != n; ++i) {
         std::cin >> coordinates[i].x;
         std::cin >> coordinates[i].y;
     }
-    std::cout << calculate_square(coordinates);
+    std::cout << calculate_square(coordinates, n);
+    delete [] coordinates;
     return 0;
 }
