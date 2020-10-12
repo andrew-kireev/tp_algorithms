@@ -152,36 +152,3 @@ int main() {
         std::cout << "NO";
     return 0;
 }
-
-
-
-//int binary_search(int vec[], int left, int right, int key, int size) {
-//    int mid;
-////    if (size <= right)
-////        right = size - 1;
-//
-//    while (left <= right)
-//    {
-//        mid = left + (right - left) / 2;
-//
-//        if (vec[mid] == key)
-//            return mid;
-//
-//        if (vec[mid] <= key)
-//        {
-//            left = mid + 1;
-//        }
-//        else
-//            right = mid - 1;
-//    }
-//    if (left >= size - 1)
-//        left = size - 1;
-//    while (left >= 1 && (vec[left] == vec[left - 1])) {
-//        left--;
-//    }
-//    if (left <= 0)
-//        return left;
-//    if (abs(vec[left] - key) < abs(vec[left - 1] - key))
-//        return left;
-//    return left - 1;
-//}

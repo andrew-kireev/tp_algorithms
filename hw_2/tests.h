@@ -244,7 +244,7 @@ void test7() {
     int mas1[] = {15, 15, 15, 15, 15, 15, 15};
     int mas2[] = {-5, -10, -20, -30, 40, 50};
 
-    std::vector<int> answers = {0, 0, 0, 0, 0, 0};
+    std::vector<int> answers = {0, 0, 0, 0, 6, 6};
 
     int n = 7;
     int n2 = 6;
@@ -283,7 +283,7 @@ void test8() {
     int mas1[] = {-50, -50, -50, -50, -50, -2, 50, 300};
     int mas2[] = {-5, -10, -20, -30, 40, 50};
 
-    std::vector<int> answers = {5, 5, 5, 0, 6, 6};
+    std::vector<int> answers = {5, 5, 5, 4, 6, 6};
 
     int n = 8;
     int n2 = 6;
@@ -322,7 +322,7 @@ void test9() {
     int mas1[] = {-50, -50, -50, -50, -50, -50, -50};
     int mas2[] = {-5, -10, -20, -30, 40, 50};
 
-    std::vector<int> answers = {0, 0, 0, 0, 0, 0};
+    std::vector<int> answers = {6, 6, 6, 6, 6, 6};
 
     int n = 7;
     int n2 = 6;
@@ -361,7 +361,7 @@ void test10() {
     int mas1[] = {-1, 0, 0, 0, 0, 0, 0};
     int mas2[] = {-5, -10, -20, -30, 40, 50};
 
-    std::vector<int> answers = {0, 0, 0, 0, 1, 1};
+    std::vector<int> answers = {0, 0, 0, 0, 6, 6};
 
     int n = 7;
     int n2 = 6;
@@ -400,7 +400,7 @@ void test11() {
     int mas1[] = {5, 5, 5, 5, 10, 10, 10};
     int mas2[] = {9, 8, 6, 5, 10, 10};
 
-    std::vector<int> answers = {4, 4, 0, 0, 4, 4};
+    std::vector<int> answers = {4, 4, 3, 0, 4, 4};
 
     int n = 7;
     int n2 = 6;
@@ -435,44 +435,44 @@ void test11() {
         std::cout << "\nTEST 11 - ERROR\n" << std::endl;
 }
 
-void test12() {
-    int mas1[] = {-50, -50, -50, -50, -50, 0, 5};
-    int mas2[] = {-5, -10, -20, -30, 40, 50};
-
-    std::vector<int> answers = {5, 5, 5, 0, 6, 6};
-
-    int n = 7;
-    int n2 = 6;
-    for (int i = 0; i != n; ++i)
-        std::cout << mas1[i] << " ";
-    std::cout << std::endl;
-    for (int i = 0; i != n2; ++i)
-        std::cout << mas2[i] << " ";
-    std::cout << std::endl;
-
-    std::vector<int> vec;
-
-    for (int i = 0; i != n2; ++i) {
-        vec.push_back(exponential_search(mas1, n, mas2[i]));
-    }
-
-    bool is_right = true;
-    for (int i = 0; i != n2; ++i) {
-        if (answers[i] != vec[i]) {
-            is_right = false;
-            break;
-        }
-    }
-    for (int i = 0; i != n2; ++i) {
-        if (i != 0)
-            std::cout << " ";
-        std::cout << vec[i];
-    }
-    if (is_right)
-        std::cout << "\nTEST 12 - OK\n" << std::endl;
-    else
-        std::cout << "\nTEST 12 - ERROR\n" << std::endl;
-}
+//void test12() {
+//    int mas1[] = {-50, -50, -50, -50, -50, 0, 5};
+//    int mas2[] = {-5, -10, -20, -30, 40, 50};
+//
+//    std::vector<int> answers = {5, 5, 5, 0, 6, 6};
+//
+//    int n = 7;
+//    int n2 = 6;
+//    for (int i = 0; i != n; ++i)
+//        std::cout << mas1[i] << " ";
+//    std::cout << std::endl;
+//    for (int i = 0; i != n2; ++i)
+//        std::cout << mas2[i] << " ";
+//    std::cout << std::endl;
+//
+//    std::vector<int> vec;
+//
+//    for (int i = 0; i != n2; ++i) {
+//        vec.push_back(exponential_search(mas1, n, mas2[i]));
+//    }
+//
+//    bool is_right = true;
+//    for (int i = 0; i != n2; ++i) {
+//        if (answers[i] != vec[i]) {
+//            is_right = false;
+//            break;
+//        }
+//    }
+//    for (int i = 0; i != n2; ++i) {
+//        if (i != 0)
+//            std::cout << " ";
+//        std::cout << vec[i];
+//    }
+//    if (is_right)
+//        std::cout << "\nTEST 12 - OK\n" << std::endl;
+//    else
+//        std::cout << "\nTEST 12 - ERROR\n" << std::endl;
+//}
 
 void test13() {
     int mas1[] = {0, 1, 25, 75, 126, 200, 300};
