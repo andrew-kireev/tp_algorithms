@@ -118,7 +118,7 @@ public:
         return -1;
     }
 
-    bool is_clear() const {
+    bool is_clear() {
         return (in_.is_clear() && out_.is_clear());
     }
 

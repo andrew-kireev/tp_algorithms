@@ -1,0 +1,185 @@
+//
+// Created by Andrew Kireev on 16.10.2020.
+//
+
+#include <iostream>
+
+template <typename T>
+class Vector {
+public:
+    Vector() {
+        size_ = capacity_ = 0;
+        buf_ = nullptr;
+    }
+
+    ~Vector() {
+        delete[] buf_;
+    }
+
+    size_t size() const {
+        return size_;
+    }
+
+    void push_back(T value) {
+        if (this->size_ == 0) {
+            buf_ = new T[++capacity_];
+        } else if (size_ == capacity_){
+            T* old_data = buf_;
+            capacity_ *= 2;
+            buf_ = new T[capacity_];
+
+            for (size_t i = 0; i < size_; ++i) {
+                buf_[i] = old_data[i];
+            }
+
+            delete[] old_data;
+        }
+        buf_[size_++] = value;
+
+    }
+
+    void pop() {
+        --size_;
+    }
+
+    T& operator[](size_t index) {
+        return buf_[index];
+    }
+
+    T * begin() const {
+        return buf_;
+    }
+
+    T * end() const {
+        return buf_ + size_;
+    }
+
+    bool is_empty() const {
+        return size_ == 0;
+    }
+
+private:
+    T *buf_;
+    size_t size_;
+    size_t capacity_;
+};
+
+
+template <typename T>
+struct DefaultComparator{
+    bool operator()(const T &lhs, const T &rhs) {
+        return lhs < rhs;
+    }
+};
+
+struct Time {
+    size_t arraving;
+    size_t departure;
+    bool operator()(const Time &other) {
+        return this->departure < other.departure;
+    }
+};
+
+
+template<class T, class Comparator = DefaultComparator<T>>
+class Heap {
+public:
+
+    void push_back(T value) {
+        data_.push_back(value);
+        sift_up(data_.size() - 1);
+    }
+
+    T pop() {
+        T elem = data_[0];
+
+        data_[0] = data_[data_.size() - 1];
+        data_.pop();
+        if (!data_.is_empty())
+            sift_down(0);
+        return elem;
+    }
+
+    void build_heap() {
+        for (int i = data_.size() / 2 - 1; i >= 0; --i)
+            sift_down(i);
+    }
+
+    const T& top() const {
+        if (data_.size())
+            return data_[0];
+    }
+
+    size_t size() const {
+        return data_.size();
+    }
+
+    bool is_empty() const {
+        return data_.is_empty();
+    }
+
+    void print_heap() const {
+        for (auto item : data_) {
+            std::cout << item << " ";
+        }
+        std::cout << std::endl;
+    }
+
+private:
+    Vector<T> data_;
+    Comparator comp_;
+
+
+    void sift_up(size_t index) {
+        while (index > 0) {
+            size_t parent_index = (index - 1) / 2;
+            if (data_[parent_index] >= data_[index])
+                return;
+            std::swap(data_[parent_index], data_[index]);
+            index = parent_index;
+        }
+    }
+
+    void sift_down(size_t index) {
+        size_t left_son = 2 * index + 1;
+        size_t right_son = 2 * index + 2;
+        size_t largest = index;
+
+        if (left_son < data_.size() && data_[left_son] > data_[index])
+            largest = left_son;
+
+        if (right_son < data_.size() && data_[right_son] > data_[largest])
+            largest = right_son;
+        if (largest != index) {
+            std::swap(data_[largest], data_[index]);
+            sift_down(largest);
+        }
+    }
+};
+
+
+int main(int argc, char **argv) {
+    Heap<int> hp;
+
+    hp.push_back(1);
+    hp.push_back(2);
+    hp.push_back(4);
+    hp.push_back(5);
+    hp.push_back(6);
+    hp.push_back(8);
+    hp.push_back(9);
+    hp.push_back(10);
+    hp.push_back(11);
+    hp.push_back(16);
+
+    hp.print_heap();
+
+
+
+    while (!hp.is_empty()) {
+        hp.pop();
+        hp.print_heap();
+    }
+
+    return 0;
+}
