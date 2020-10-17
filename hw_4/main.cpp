@@ -42,6 +42,10 @@ public:
         --size_;
     }
 
+    const T& operator[](size_t index) const {
+        return buf_[index];
+    }
+
     T& operator[](size_t index) {
         return buf_[index];
     }
@@ -75,10 +79,29 @@ struct DefaultComparator{
 struct Time {
     size_t arraving;
     size_t departure;
-    bool operator()(const Time &other) {
+    bool operator<(const Time &other) {
+        return this->departure > other.departure;
+    }
+
+    bool operator>(const Time &other) {
         return this->departure < other.departure;
     }
+
+    bool operator==(const Time &other) {
+        return this->departure == other.departure;
+    }
+
+    bool operator>=(const Time &other) {
+        return this->departure <= other.departure;
+    }
+
+    friend std::ostream& operator<< (std::ostream &out, const Time& time);
 };
+
+std::ostream& operator<< (std::ostream &out, const Time& time) {
+    out << time.departure;
+    return out;
+}
 
 
 template<class T, class Comparator = DefaultComparator<T>>
@@ -88,6 +111,8 @@ public:
     void push_back(T value) {
         data_.push_back(value);
         sift_up(data_.size() - 1);
+        if (data_.size() > max_size_)
+            max_size_ = data_.size();
     }
 
     T pop() {
@@ -103,6 +128,11 @@ public:
     void build_heap() {
         for (int i = data_.size() / 2 - 1; i >= 0; --i)
             sift_down(i);
+    }
+
+    T& top() {
+        if (data_.size())
+            return data_[0];
     }
 
     const T& top() const {
@@ -125,9 +155,15 @@ public:
         std::cout << std::endl;
     }
 
+    int max_size() const {
+        return max_size_;
+    }
+
 private:
     Vector<T> data_;
     Comparator comp_;
+
+    int max_size_ = 0;
 
 
     void sift_up(size_t index) {
@@ -159,27 +195,23 @@ private:
 
 
 int main(int argc, char **argv) {
-    Heap<int> hp;
+    Heap<Time> hp;
 
-    hp.push_back(1);
-    hp.push_back(2);
-    hp.push_back(4);
-    hp.push_back(5);
-    hp.push_back(6);
-    hp.push_back(8);
-    hp.push_back(9);
-    hp.push_back(10);
-    hp.push_back(11);
-    hp.push_back(16);
+    int n;
 
-    hp.print_heap();
+    std::cin >> n;
+    size_t arriving, derapture;
 
-
-
-    while (!hp.is_empty()) {
-        hp.pop();
-        hp.print_heap();
+    for (size_t i = 0; i != n; ++i) {
+        std::cin >> arriving >> derapture;
+        if (!hp.is_empty() && arriving > hp.top().departure) {
+            hp.pop();
+            hp.push_back({arriving, derapture});
+        } else
+            hp.push_back({arriving, derapture});
     }
+    std::cout << hp.max_size();
 
+//    hp.print_heap();
     return 0;
 }
