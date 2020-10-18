@@ -3,6 +3,8 @@
 //
 
 #include <iostream>
+#include <algorithm>
+#include <vector>
 
 
 template <typename T>
@@ -93,9 +95,32 @@ struct Date {
             return true;
         return false;
     }
+
+    bool operator<=(const Date &other) {
+        if (this->year <= other.year)
+            return true;
+        else if (this->year == other.year && this->month <= other.month)
+            return true;
+        else if (this->year == other.year && this->month == other.month &&
+                 this->day <= other.day)
+            return true;
+        return false;
+    }
+
     friend std::ostream& operator<< (std::ostream &out, const Date& date);
     friend std::istream& operator>> (std::istream &in, Date &date);
 };
+
+bool operator<(const Date& lhs, const Date& rhs) {
+    if (lhs.year < rhs.year)
+        return true;
+    else if (lhs.year == rhs.year && lhs.month < rhs.month)
+        return true;
+    else if (lhs.year == rhs.year && lhs.month == rhs.month &&
+             lhs.day < rhs.day)
+        return true;
+    return false;
+}
 
 std::ostream& operator<< (std::ostream &out, const Date& date) {
     out << date.day << ' ' << date.month << ' ' << date.year << std::endl;
@@ -115,54 +140,98 @@ struct Years_of_life {
 };
 
 
+//template <typename T>
+//void merge(std::vector<T>& vec, size_t left, size_t mid, size_t right) {
+//    int pos_fist = left;
+//    int pos_second = mid + 1;
+//    int  pos_tmp = 0;
+//
+//    std::vector<T> tmp(right - left + 1);
+////    T *tmp = new T[right - left + 1];
+//
+//
+//    while (pos_fist <= pos_second && pos_second <= right) {
+//        if (vec[pos_fist] < vec[pos_second])
+//            tmp[pos_tmp++] = vec[pos_fist++];
+//        else
+//            tmp[pos_tmp++] = vec[pos_second++];
+//    }
+//
+//    while (pos_second <= right)   // пока вторая последовательность непуста
+//        tmp[pos_tmp++] = vec[pos_second++];
+//    while (pos_fist <= mid)  // пока первая последовательность непуста
+//        tmp[pos_tmp++] = vec[pos_fist++];
+//
+//    // скопировать буфер temp в a[lb]...a[ub]
+//    for (pos_tmp = 0; pos_tmp < right - left + 1; pos_tmp++)
+//        vec[left + pos_tmp] = tmp[pos_tmp];
+//
+//}
+
 template <typename T>
-void merge(T *vec, size_t left, size_t mid, size_t right) {
-    int pos_fist = left;
-    int pos_second = mid + 1;
-    int  pos_tmp = 0;
+void merge(T vec[], int left, int mid, int right) {
 
-//    Vector<T> tmp(right - left + 1);
-    T *tmp = new T[right - left + 1];
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+
+    T L[n1];
+    T M[n2];
+
+    for (int i = 0; i < n1; i++)
+        L[i] = vec[left + i];
+    for (int j = 0; j < n2; j++)
+        M[j] = vec[mid + 1 + j];
+
+    int i, j, k;
+    i = 0;
+    j = 0;
+    k = left;
 
 
-    while (pos_fist <= mid && pos_second <= right) {
-        if (vec[pos_fist] < vec[pos_second])
-            tmp[pos_tmp++] = vec[pos_fist++];
-        else
-            tmp[pos_tmp++] = vec[pos_second++];
+    while (i < n1 && j < n2) {
+        if (L[i] <= M[j]) {
+            vec[k] = L[i];
+            i++;
+        } else {
+            vec[k] = M[j];
+            j++;
+        }
+        k++;
     }
 
-    while (pos_second <= right)   // пока вторая последовательность непуста
-        tmp[pos_tmp++] = vec[pos_second++];
-    while (pos_fist <= mid)  // пока первая последовательность непуста
-        tmp[pos_tmp++] = vec[pos_fist++];
 
-    // скопировать буфер temp в a[lb]...a[ub]
-    for (pos_tmp = 0; pos_tmp < right - left + 1; pos_tmp++)
-        vec[left + pos_tmp] = tmp[pos_tmp];
+    while (i < n1) {
+        vec[k] = L[i];
+        i++;
+        k++;
+    }
 
+    while (j < n2) {
+        vec[k] = M[j];
+        j++;
+        k++;
+    }
 }
 
 
 template <typename T>
-void merge_sort(T *vec, size_t left, size_t right) {
+void merge_sort(T arr[], int left, int right) {
     if (left < right) {
         int mid = left + (right - left) / 2;
 
-        merge_sort(vec, left, mid);
-        merge_sort(vec, mid + 1, right);
+        merge_sort(arr, left, mid);
+        merge_sort(arr, mid + 1, right);
 
-        merge(vec, left, mid, right);
+        merge(arr, left, mid, right);
     }
 }
 
-
-int count_contemporaries(const Vector<Date>& vec) {
+int count_contemporaries(Date dates[], int size) {
     int count = 0;
     int max_count = 0;
 
-    for (auto date : vec) {
-        if (date.born)
+    for (int i = 0; i != size; ++i) {
+        if (dates[i].born)
             ++count;
         else
             --count;
@@ -175,12 +244,12 @@ int count_contemporaries(const Vector<Date>& vec) {
 
 int main(int argc, char **argv) {
 
-//    Vector<Date> dates;
-
-    Date *dates = new Date[6];
 
     size_t n;
     std::cin >> n;
+
+    Date dates[n * 2];
+
     int j = 0;
     for (int i = 0; i != n; ++i) {
         Date date1, date2;
@@ -191,26 +260,22 @@ int main(int argc, char **argv) {
         ++j;
         dates[j] = date2;
         ++j;
-//        dates.push_back(date1);
-//        dates.push_back(date2);
     }
 
-
-//    for (auto date : dates)
-//        std::cout << date;
-
-    merge_sort(dates, 0, 6);
-
-    for (int i = 0; i != 6; ++i) {
+    for (int i = 0; i != n * 2; ++i)
         std::cout << dates[i];
-    }
 
-//    for (auto date : dates)
-//        std::cout << date;
-//
-//    std::cout << date[];
+    std::cout << std::endl;
 
-//    std::cout << count_contemporaries(dates);
+
+    merge_sort(dates, 0, n * 2);
+
+    for (int i = 0; i != n * 2; ++i)
+        std::cout << dates[i];
+
+    std::cout << std::endl;
+
+    std::cout << count_contemporaries(dates, n * 2);
 
 
     return 0;
