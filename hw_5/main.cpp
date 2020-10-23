@@ -1,6 +1,7 @@
 ////
 //// Created by Andrew Kireev on 17.10.2020.
 ////
+
 ////Группа людей называется современниками если был такой момент, когда они могли собраться вместе.
 ////Для этого в этот момент каждому из них должно было  уже исполниться 18 лет, но ещё не исполниться 80 лет.
 ////Дан список Жизни Великих Людей. Необходимо получить максимальное количество современников.
@@ -23,12 +24,12 @@ struct Date {
         else if (this->year == other.year && this->month < other.month)
             return true;
         else if (this->year == other.year && this->month == other.month &&
-        this->day < other.day)
+                 this->day < other.day)
             return true;
         return false;
     }
 
-    bool operator<=(const Date &other) {
+    bool operator<=(const Date &other) const {
         if (this->year <= other.year)
             return true;
         else if (this->year == other.year && this->month <= other.month)
@@ -38,6 +39,7 @@ struct Date {
             return true;
         return false;
     }
+
     friend std::ostream& operator<< (std::ostream &out, const Date& date);
     friend std::istream& operator>> (std::istream &in, Date &date);
 };
@@ -65,8 +67,19 @@ std::istream& operator>> (std::istream &in, Date& date) {
     return in;
 }
 
+
 template <typename T>
-void merge(T vec[], int left, int mid, int right) {
+class DefaultComparator{
+public:
+    bool operator()(const T &lhs, const T &rhs) const {
+        return lhs <= rhs;
+    }
+};
+
+
+template <typename T, typename Comparator = DefaultComparator<T>>
+void merge(T vec[], int left, int mid, int right,
+           Comparator comp = DefaultComparator<T>()) {
 
     int n1 = mid - left + 1;
     int n2 = right - mid;
@@ -81,7 +94,7 @@ void merge(T vec[], int left, int mid, int right) {
 
     int pos_first = 0, pos_second = 0;
     while (pos_first < n1 && pos_second < n2)
-        if (tmp_left[pos_first] <= tmp_right[pos_second])
+        if (comp(tmp_left[pos_first], tmp_right[pos_second]))
             vec[left++] = tmp_left[pos_first++];
         else
             vec[left++] = tmp_right[pos_second++];
@@ -95,8 +108,9 @@ void merge(T vec[], int left, int mid, int right) {
 }
 
 
-template <typename T>
-void merge_sort(T arr[], int left, int right) {
+template <typename T, typename Comparator = DefaultComparator<T>>
+void merge_sort(T arr[], int left, int right,
+        Comparator comp = DefaultComparator<T>()) {
     if (left < right) {
         int mid = left + (right - left) / 2;
 
@@ -107,6 +121,9 @@ void merge_sort(T arr[], int left, int right) {
     }
 }
 
+
+// Корректируем дату рождения, смерти так, чтобы получить промежутов, в котором человек
+// мог быть современником
 void check_dates(Date& birthday, Date& deth) {
     Date new_deth = birthday;
     new_deth.year += 80;
@@ -114,19 +131,26 @@ void check_dates(Date& birthday, Date& deth) {
     Date new_birthday = birthday;
     new_birthday.born = true;
     new_birthday.year += 18;
+    birthday = new_birthday;
     if (new_birthday < deth)
         birthday = new_birthday;
     if (new_deth < deth)
         deth = new_deth;
     deth.day--;
+    if (deth < birthday) {
+        birthday.year = 0;
+        deth.year = 0;
+    }
 }
 
-
+// Считаем современников
 int count_contemporaries(Date dates[], int size) {
     int count = 0;
     int max_count = 0;
 
     for (int i = 0; i != size; ++i) {
+        if (dates[i].year == 0)
+            continue;
         if (dates[i].born)
             ++count;
         else
@@ -139,8 +163,6 @@ int count_contemporaries(Date dates[], int size) {
 
 
 int main(int argc, char **argv) {
-
-
     size_t n;
     std::cin >> n;
 
@@ -159,17 +181,7 @@ int main(int argc, char **argv) {
         ++j;
     }
 
-    for (int i = 0; i != n * 2; ++i)
-        std::cout << dates[i];
-    std::cout << std::endl;
-    std::cout << std::endl;
-
-
     merge_sort(dates, 0, n * 2);
-
-    for (int i = 0; i != n * 2; ++i)
-        std::cout << dates[i];
-    std::cout << std::endl;
 
     std::cout << count_contemporaries(dates, n * 2);
     return 0;
