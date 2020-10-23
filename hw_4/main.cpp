@@ -1,7 +1,3 @@
-//
-// Created by Andrew Kireev on 16.10.2020.
-//
-
 #include <iostream>
 
 template <typename T>
@@ -70,28 +66,42 @@ private:
 
 
 template <typename T>
-struct DefaultComparator{
-    bool operator()(const T &lhs, const T &rhs) {
+class DefaultComparator{
+public:
+    bool operator()(const T &lhs, const T &rhs) const {
         return lhs < rhs;
+    }
+};
+
+
+template <typename T>
+class DefaultComparatorLessEqual{
+public:
+    bool operator()(const T &lhs, const T &rhs) const {
+        return lhs <= rhs;
     }
 };
 
 struct Time {
     size_t arraving;
     size_t departure;
-    bool operator<(const Time &other) {
-        return this->departure > other.departure;
-    }
-
-    bool operator>(const Time &other) {
+    bool operator<(const Time &other) const {
         return this->departure < other.departure;
     }
 
-    bool operator==(const Time &other) {
+    bool operator>(const Time &other) const {
+        return this->departure > other.departure;
+    }
+
+    bool operator==(const Time &other) const {
         return this->departure == other.departure;
     }
 
-    bool operator>=(const Time &other) {
+    bool operator>=(const Time &other) const {
+        return this->departure >= other.departure;
+    }
+
+    bool operator<=(const Time &other) const {
         return this->departure <= other.departure;
     }
 
@@ -104,9 +114,15 @@ std::ostream& operator<< (std::ostream &out, const Time& time) {
 }
 
 
-template<class T, class Comparator = DefaultComparator<T>>
+template<class T, class Comparator = DefaultComparator<T>,
+        class ComparatorLessEqual = DefaultComparatorLessEqual<T>>
 class Heap {
 public:
+
+    Heap() = default;
+
+    Heap(DefaultComparator<T> comp, DefaultComparatorLessEqual<T> comp_less) : comp_(comp),
+                                comp_less_eq_(comp_less), max_size_(0) {}
 
     void push_back(T value) {
         data_.push_back(value);
@@ -128,11 +144,6 @@ public:
     void build_heap() {
         for (int i = data_.size() / 2 - 1; i >= 0; --i)
             sift_down(i);
-    }
-
-    T& top() {
-        if (data_.size())
-            return data_[0];
     }
 
     const T& top() const {
@@ -161,7 +172,8 @@ public:
 
 private:
     Vector<T> data_;
-    Comparator comp_;
+    Comparator comp_ = DefaultComparator<T>();
+    ComparatorLessEqual comp_less_eq_ = DefaultComparatorLessEqual<T>();
 
     int max_size_ = 0;
 
@@ -169,7 +181,7 @@ private:
     void sift_up(size_t index) {
         while (index > 0) {
             size_t parent_index = (index - 1) / 2;
-            if (data_[parent_index] >= data_[index])
+            if (comp_less_eq_(data_[parent_index], data_[index]))
                 return;
             std::swap(data_[parent_index], data_[index]);
             index = parent_index;
@@ -181,10 +193,10 @@ private:
         size_t right_son = 2 * index + 2;
         size_t largest = index;
 
-        if (left_son < data_.size() && data_[left_son] > data_[index])
+        if (left_son < data_.size() && comp_(data_[left_son], data_[index]))
             largest = left_son;
 
-        if (right_son < data_.size() && data_[right_son] > data_[largest])
+        if (right_son < data_.size() && comp_(data_[right_son], data_[largest]))
             largest = right_son;
         if (largest != index) {
             std::swap(data_[largest], data_[index]);
@@ -212,6 +224,5 @@ int main(int argc, char **argv) {
     }
     std::cout << hp.max_size();
 
-//    hp.print_heap();
     return 0;
 }

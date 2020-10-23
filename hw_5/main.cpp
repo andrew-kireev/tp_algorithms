@@ -1,82 +1,14 @@
-//
-// Created by Andrew Kireev on 17.10.2020.
-//
+////
+//// Created by Andrew Kireev on 17.10.2020.
+////
+////Группа людей называется современниками если был такой момент, когда они могли собраться вместе.
+////Для этого в этот момент каждому из них должно было  уже исполниться 18 лет, но ещё не исполниться 80 лет.
+////Дан список Жизни Великих Людей. Необходимо получить максимальное количество современников.
+////В день 18летия человек уже может принимать участие в собраниях, а в день 80летия и в день смерти уже не может.
+////Замечание. Человек мог не дожить до 18-летия, либо умереть в день 18-летия.
+////В этих случаях принимать участие в собраниях он не мог.
 
 #include <iostream>
-#include <algorithm>
-#include <vector>
-
-
-template <typename T>
-class Vector {
-public:
-    Vector() {
-        size_ = capacity_ = 0;
-        buf_ = nullptr;
-    }
-
-    Vector(size_t size) {
-        buf_ = new T[size];
-        size_ = size;
-        capacity_ = size;
-    }
-
-    ~Vector() {
-        delete[] buf_;
-    }
-
-    size_t size() const {
-        return size_;
-    }
-
-    void push_back(T value) {
-        if (this->size_ == 0) {
-            buf_ = new T[++capacity_];
-        } else if (size_ == capacity_){
-            T* old_data = buf_;
-            capacity_ *= 2;
-            buf_ = new T[capacity_];
-
-            for (size_t i = 0; i < size_; ++i) {
-                buf_[i] = old_data[i];
-            }
-
-            delete[] old_data;
-        }
-        buf_[size_++] = value;
-
-    }
-
-    void pop() {
-        --size_;
-    }
-
-    const T& operator[](size_t index) const {
-        return buf_[index];
-    }
-
-    T& operator[](size_t index) {
-        return buf_[index];
-    }
-
-    T * begin() const {
-        return buf_;
-    }
-
-    T * end() const {
-        return buf_ + size_;
-    }
-
-    bool is_empty() const {
-        return size_ == 0;
-    }
-
-private:
-    T *buf_;
-    size_t size_;
-    size_t capacity_;
-};
-
 
 struct Date {
     size_t day;
@@ -106,7 +38,6 @@ struct Date {
             return true;
         return false;
     }
-
     friend std::ostream& operator<< (std::ostream &out, const Date& date);
     friend std::istream& operator>> (std::istream &in, Date &date);
 };
@@ -134,83 +65,33 @@ std::istream& operator>> (std::istream &in, Date& date) {
     return in;
 }
 
-struct Years_of_life {
-    Date birth_date;
-    Date death_date;
-};
-
-
-//template <typename T>
-//void merge(std::vector<T>& vec, size_t left, size_t mid, size_t right) {
-//    int pos_fist = left;
-//    int pos_second = mid + 1;
-//    int  pos_tmp = 0;
-//
-//    std::vector<T> tmp(right - left + 1);
-////    T *tmp = new T[right - left + 1];
-//
-//
-//    while (pos_fist <= pos_second && pos_second <= right) {
-//        if (vec[pos_fist] < vec[pos_second])
-//            tmp[pos_tmp++] = vec[pos_fist++];
-//        else
-//            tmp[pos_tmp++] = vec[pos_second++];
-//    }
-//
-//    while (pos_second <= right)   // пока вторая последовательность непуста
-//        tmp[pos_tmp++] = vec[pos_second++];
-//    while (pos_fist <= mid)  // пока первая последовательность непуста
-//        tmp[pos_tmp++] = vec[pos_fist++];
-//
-//    // скопировать буфер temp в a[lb]...a[ub]
-//    for (pos_tmp = 0; pos_tmp < right - left + 1; pos_tmp++)
-//        vec[left + pos_tmp] = tmp[pos_tmp];
-//
-//}
-
 template <typename T>
 void merge(T vec[], int left, int mid, int right) {
 
     int n1 = mid - left + 1;
     int n2 = right - mid;
 
-    T L[n1];
-    T M[n2];
+    T* tmp_left = new T[n1];
+    T* tmp_right = new T[n2];
 
-    for (int i = 0; i < n1; i++)
-        L[i] = vec[left + i];
-    for (int j = 0; j < n2; j++)
-        M[j] = vec[mid + 1 + j];
+    for (int i = 0; i < n1; ++i)
+        tmp_left[i] = vec[left + i];
+    for (int i = 0; i < n2; i++)
+        tmp_right[i] = vec[mid + 1 + i];
 
-    int i, j, k;
-    i = 0;
-    j = 0;
-    k = left;
-
-
-    while (i < n1 && j < n2) {
-        if (L[i] <= M[j]) {
-            vec[k] = L[i];
-            i++;
-        } else {
-            vec[k] = M[j];
-            j++;
-        }
-        k++;
-    }
+    int pos_first = 0, pos_second = 0;
+    while (pos_first < n1 && pos_second < n2)
+        if (tmp_left[pos_first] <= tmp_right[pos_second])
+            vec[left++] = tmp_left[pos_first++];
+        else
+            vec[left++] = tmp_right[pos_second++];
 
 
-    while (i < n1) {
-        vec[k] = L[i];
-        i++;
-        k++;
-    }
+    while (pos_first < n1)
+        vec[left++] = tmp_left[pos_first++];
 
-    while (j < n2) {
-        vec[k] = M[j];
-        j++;
-        k++;
-    }
+    while (pos_second < n2)
+        vec[left++] = tmp_right[pos_second++];
 }
 
 
@@ -225,6 +106,21 @@ void merge_sort(T arr[], int left, int right) {
         merge(arr, left, mid, right);
     }
 }
+
+void check_dates(Date& birthday, Date& deth) {
+    Date new_deth = birthday;
+    new_deth.year += 80;
+    new_deth.born = false;
+    Date new_birthday = birthday;
+    new_birthday.born = true;
+    new_birthday.year += 18;
+    if (new_birthday < deth)
+        birthday = new_birthday;
+    if (new_deth < deth)
+        deth = new_deth;
+    deth.day--;
+}
+
 
 int count_contemporaries(Date dates[], int size) {
     int count = 0;
@@ -256,6 +152,7 @@ int main(int argc, char **argv) {
         std::cin >> date1 >> date2;
         date1.born = true;
         date2.born = false;
+        check_dates(date1, date2);
         dates[j] = date1;
         ++j;
         dates[j] = date2;
@@ -264,7 +161,7 @@ int main(int argc, char **argv) {
 
     for (int i = 0; i != n * 2; ++i)
         std::cout << dates[i];
-
+    std::cout << std::endl;
     std::cout << std::endl;
 
 
@@ -272,11 +169,8 @@ int main(int argc, char **argv) {
 
     for (int i = 0; i != n * 2; ++i)
         std::cout << dates[i];
-
     std::cout << std::endl;
 
     std::cout << count_contemporaries(dates, n * 2);
-
-
     return 0;
 }
