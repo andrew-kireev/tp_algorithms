@@ -3,4 +3,4 @@ project(tp_algorithms)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(tp_algorithms hw_5/main.cpp)
+add_executable(tp_algorithms hw_6/main.cpp)
