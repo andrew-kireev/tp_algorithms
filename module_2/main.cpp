@@ -2,6 +2,17 @@
 // Created by Andrew Kireev on 17.11.2020.
 //
 
+//Реализуйте структуру данных типа “множество строк” на основе динамической хеш-таблицы с открытой адресацией.
+// Хранимые строки непустые и состоят из строчных латинских букв.
+//Хеш-функция строки должна быть реализована с помощью вычисления значения многочлена методом Горнера.
+//Начальный размер таблицы должен быть равным 8-ми.
+// Перехеширование выполняйте при добавлении элементов в случае, когда коэффициент заполнения таблицы достигает 3/4.
+//Структура данных должна поддерживать операции добавления строки в множество,
+// удаления строки из множества и проверки принадлежности данной строки множеству.
+//1_2. Для разрешения коллизий используйте двойное хеширование.
+
+
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -11,49 +22,48 @@
 
 
 
-//int hash_1(const std::string& string, int table_size) {
-//    int hash = 0;
-//    int hasher = 11;
-//
-//    std::accumulate(string.begin(), string.end(), 0,
-//            [&hash, hasher, table_size](int init, char c) {
-//        return hash += (hash * hasher + c) % table_size;
-//    });
-//    return hash % table_size;
-//}
-//
-//int hash_2(const std::string& string, int table_size) {
-//    int hash = 0;
-//    int hasher = 17;
-//
-//    std::accumulate(string.begin(), string.end(), 0,
-//                    [&hash, hasher, table_size](int init, char c) {
-//                        return hash += (hash * hasher + c) % table_size;
-//                    });
-//    return (2 * hash + 1) % table_size;
-//}
-
 int hash_1(const std::string& string, int table_size) {
     int hash = 0;
-    int hasher = 17;
+    int hasher = 11;
 
-    for (int i = string.size(); i >= 0; i--) {
-        hash += (hash * hasher + string[i]) % table_size;
-    }
+    std::accumulate(string.begin(), string.end(), 0,
+            [&hash, hasher, table_size](int init, char c) {
+        return hash += (hash * hasher + c) % table_size;
+    });
     return hash % table_size;
 }
 
 int hash_2(const std::string& string, int table_size) {
     int hash = 0;
-    int hasher = 19;
+    int hasher = 17;
 
-    for (int i = string.size(); i >= 0; i--) {
-        hash += (hash * hasher + string[i]) % table_size;
-    }
+    std::accumulate(string.begin(), string.end(), 0,
+                    [&hash, hasher, table_size](int init, char c) {
+                        return hash += (hash * hasher + c) % table_size;
+                    });
     return (2 * hash + 1) % table_size;
 }
 
-template <typename Value>
+template<class T>
+struct Hash1;
+
+template<> struct Hash1<std::string> {
+    size_t operator() (const std::string& key, int table_size) const {
+        return hash_1(key, table_size);
+    }
+};
+
+template<class T>
+struct Hash2;
+
+template<> struct Hash2<std::string> {
+    size_t operator() (const std::string& key, int table_size) const {
+        return hash_2(key, table_size);
+    }
+};
+
+template <typename Value, typename Hash_1 = Hash1<std::string>,
+        typename Hash_2 = Hash2<std::string>>
 class HashTable {
 
     struct TableNode {
@@ -69,15 +79,16 @@ public:
         data_.resize(8);
     }
 
+
     HashTable(int capacity) {
         data_.resize(capacity);
     }
 
-    bool insert(std::string& string) {
+    bool insert(const std::string& string) {
         if (size_ + 1 >= (data_.capacity() * 0.75))
             re_hash();
-        int string_hash_1 = hash_1(string, data_.capacity());
-        int string_hash_2 = hash_2(string, data_.capacity());
+        int string_hash_1 = hash_1_(string, data_.capacity());
+        int string_hash_2 = hash_2_(string, data_.capacity());
 
         if (at(string) == true)
             return false;
@@ -94,8 +105,8 @@ public:
     }
 
     bool at(const std::string& string) const {
-        int string_hash_1 = hash_1(string, data_.capacity());
-        int string_hash_2 = hash_2(string, data_.capacity());
+        int string_hash_1 = hash_1_(string, data_.capacity());
+        int string_hash_2 = hash_2_(string, data_.capacity());
 
 
         for (size_t i = 0; i != data_.capacity(); ++i) {
@@ -112,8 +123,8 @@ public:
 
     bool erase(const std::string& string) {
         if (at(string)) {
-            int string_hash_1 = hash_1(string, data_.capacity());
-            int string_hash_2 = hash_2(string, data_.capacity());
+            int string_hash_1 = hash_1_(string, data_.capacity());
+            int string_hash_2 = hash_2_(string, data_.capacity());
 
             for (size_t i = 0; i != data_.capacity(); ++i) {
                 int current_hash = (string_hash_1 + i * string_hash_2) % data_.capacity();
@@ -137,6 +148,8 @@ public:
 private:
     std::vector<TableNode> data_;
     size_t size_ = 0;
+    Hash_1 hash_1_;
+    Hash_2 hash_2_;
 
     void re_hash() {
         std::vector<TableNode> tmp_data = std::move(data_);
@@ -149,6 +162,8 @@ private:
         }
     }
 };
+
+
 
 void test() {
     HashTable<std::string> hash_table;
@@ -190,10 +205,7 @@ void test() {
         else
             std::cout << strings[i] << ": ОШИБКА!" << std::endl;
     }
-
-
 }
-
 
 
 int main(int argc, char **argv) {
@@ -222,8 +234,6 @@ int main(int argc, char **argv) {
             std::cout << "FAIL" << std::endl;
         }
     }
-
-
 //    test();
     return 0;
 }
