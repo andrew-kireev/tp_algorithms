@@ -1,6 +1,20 @@
 //
 // Created by Andrew Kireev on 21.11.2020.
 //
+//Дано число N < 106 и последовательность пар целых чисел из [-231..231] длиной N.
+//Построить декартово дерево из N узлов, характеризующихся парами чисел {Xi, Yi}.
+//Каждая пара чисел {Xi, Yi} определяет ключ Xi и приоритет Yi в декартовом дереве.
+//Добавление узла в декартово дерево выполняйте второй версией алгоритма, рассказанного на лекции:
+//При добавлении узла (x, y) выполняйте спуск по ключу до узла P с меньшим приоритетом.
+// Затем разбейте найденное поддерево по ключу x так, чтобы в первом поддереве все ключи меньше x,
+// а во втором больше или равны x.
+// Получившиеся два дерева сделайте дочерними для нового узла (x, y). Новый узел вставьте на место узла P.
+//
+//Построить также наивное дерево поиска по ключам Xi методом из задачи 2.
+//
+//3_2. Вычислить количество узлов в самом широком слое декартового дерева
+//и количество узлов в самом широком слое наивного дерева поиска.
+//Вывести их разницу. Разница может быть отрицательна.
 
 #include <iostream>
 #include <memory>
@@ -63,42 +77,13 @@ public:
             parent->left_ = cur_node;
     }
 
-
-    void post_oder(std::function<void(Value&)> func) {
-        if (root_ == nullptr)
-            return;
-
-        std::stack<std::shared_ptr<Node>> stack1, stack2;
-
-        stack1.push(root_);
-        std::shared_ptr<Node> node;
-
-        while (!stack1.empty()) {
-            node = stack1.top();
-            stack1.pop();
-            stack2.push(node);
-
-            if (node->left_)
-                stack1.push(node->left_);
-
-            if (node->right_)
-                stack1.push(node->right_);
-        }
-
-        while (!stack2.empty()) {
-            node = stack2.top();
-            stack2.pop();
-            func(node->value_);
-        }
-    }
-
-    size_t max_width() const {
-        size_t max_width = 0;
+    int max_width() const {
+        int max_width = 0;
         std::queue<std::shared_ptr<Node>> layer;
 
         layer.push(root_);
         while (!layer.empty()) {
-            size_t cur_width = layer.size();
+            int cur_width = layer.size();
             if (cur_width > max_width)
                 max_width = cur_width;
 
@@ -162,12 +147,12 @@ public:
     }
 
     int max_width() const {
-        size_t max_width = 0;
+        int max_width = 0;
         std::queue<std::shared_ptr<TreapNode>> layer;
 
         layer.push(root_);
         while (!layer.empty()) {
-            size_t cur_width = layer.size();
+            int cur_width = layer.size();
             if (cur_width > max_width)
                 max_width = cur_width;
 
@@ -185,7 +170,9 @@ public:
     }
 
     void print() {
+        std::cout << std::endl;
         print(root_);
+        std::cout << std::endl;
     }
 
     void print(std::shared_ptr<TreapNode> node) {
@@ -200,7 +187,7 @@ public:
 private:
     std::shared_ptr<TreapNode> root_;
 
-    void split(std::shared_ptr<TreapNode>& cur_node, int key,
+    void split(std::shared_ptr<TreapNode> cur_node, int key,
                std::shared_ptr<TreapNode>& left, std::shared_ptr<TreapNode>& right) {
 
         if (cur_node == nullptr) {
@@ -233,7 +220,7 @@ private:
 int main(int argc, char **argv) {
     Treap<int> treap;
     BinaryTree<int> binary_tree;
-    size_t n, priority;
+    int n, priority;
     int number;
 
     std::cin >> n;
@@ -243,7 +230,6 @@ int main(int argc, char **argv) {
         binary_tree.insert(number);
     }
 
-    treap.print();
-//    std::cout << treap.max_width() - binary_tree.max_width();
+    std::cout << treap.max_width() - binary_tree.max_width();
     return 0;
 }
