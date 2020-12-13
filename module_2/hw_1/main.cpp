@@ -44,6 +44,7 @@ int hash_2(const std::string& string, int table_size) {
     return (2 * hash + 1) % table_size;
 }
 
+
 template<class T>
 struct Hash1;
 
@@ -76,7 +77,7 @@ class HashTable {
 
 public:
     HashTable() {
-        data_.resize(8);
+        data_.resize(2);
     }
 
 

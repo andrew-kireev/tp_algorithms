@@ -31,6 +31,8 @@ class BinaryTree {
         std::shared_ptr<Node> left_ = nullptr;
         std::shared_ptr<Node> right_ = nullptr;
         Value value_;
+
+        ~Node() = default;
     };
 
 public:
@@ -69,32 +71,55 @@ public:
     }
 
 
-    void post_oder(std::function<void(Value&)> func) {
+
+    int min(int left, int right) {
+    	if (left < right)
+    		return left;
+    	return right;
+    }
+
+
+	int min_depth()
+	{
+		if (root_ == nullptr)
+			return 0;
+		return min_depth(root_);
+	}
+
+	int min_depth(std::shared_ptr<Node> node)
+	{
+		if (node == nullptr)
+			return 0;
+		return std::min(min_depth(node->left_), min_depth(node->right_)) + 1;
+	}
+
+    ~BinaryTree() {
         if (root_ == nullptr)
             return;
 
-        std::stack<std::shared_ptr<Node>> stack1, stack2;
+        std::stack<std::shared_ptr<Node>> queue;
 
-        stack1.push(root_);
+        queue.push(root_);
         std::shared_ptr<Node> node;
 
-        while (!stack1.empty()) {
-            node = stack1.top();
-            stack1.pop();
-            stack2.push(node);
+        while (!queue.empty()) {
+            node = queue.top();
+            queue.pop();
 
-            if (node->left_)
-                stack1.push(node->left_);
+            if (node->left_) {
+                queue.push(node->left_);
+                node->left_ = nullptr;
+            }
 
-            if (node->right_)
-                stack1.push(node->right_);
+            if (node->right_) {
+                queue.push(node->right_);
+                node->right_ = nullptr;
+            }
         }
-
-        while (!stack2.empty()) {
-            node = stack2.top();
-            stack2.pop();
-            func(node->value_);
-        }
+        if (node->left_ == nullptr && node->right_ == nullptr)
+            node.reset();
+        else
+            queue.push(node);
     }
 private:
     std::shared_ptr<Node> root_;
@@ -112,9 +137,11 @@ int main(int argc, char **argv) {
         tree.insert(number);
     }
 
-    tree.post_oder([](int& value){
-        std::cout << value << " ";
-    });
+//    tree.post_oder([](int& value){
+//        std::cout << value << " ";
+//    });
+
+	std::cout << tree.min_depth() << std::endl;
 
     return 0;
 }

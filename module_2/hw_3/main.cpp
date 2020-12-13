@@ -99,6 +99,35 @@ public:
         return max_width;
     }
 
+    ~BinaryTree() {
+        if (root_ == nullptr)
+            return;
+
+        std::stack<std::shared_ptr<Node>> queue;
+
+        queue.push(root_);
+        std::shared_ptr<Node> node;
+
+        while (!queue.empty()) {
+            node = queue.top();
+            queue.pop();
+
+            if (node->left_) {
+                queue.push(node->left_);
+                node->left_ = nullptr;
+            }
+
+            if (node->right_) {
+                queue.push(node->right_);
+                node->right_ = nullptr;
+            }
+        }
+        if (node->left_ == nullptr && node->right_ == nullptr)
+            node.reset();
+        else
+            queue.push(node);
+    }
+
 private:
     std::shared_ptr<Node> root_;
     Comparator comp_;
