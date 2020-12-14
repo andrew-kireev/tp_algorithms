@@ -1,7 +1,19 @@
-////
-//// Created by Andrew Kireev on 06.12.2020.
-////
 //
+// Created by Andrew Kireev on 06.12.2020.
+//
+
+//4_1. Солдаты. В одной военной части решили построить в одну шеренгу по росту.
+//Т.к. часть была далеко не образцовая, то солдаты часто приходили не вовремя,
+//а то их и вовсе приходилось выгонять из шеренги за плохо начищенные сапоги.
+//Однако солдаты в процессе прихода и ухода должны были всегда быть выстроены
+//по росту – сначала самые высокие, а в конце – самые низкие. За расстановку
+//солдат отвечал прапорщик, который заметил интересную особенность – все солдаты
+//в части разного роста. Ваша задача состоит в том, чтобы помочь прапорщику правильно
+//расставлять солдат, а именно для каждого приходящего солдата указывать, перед каким
+//солдатом в строе он должен становится.
+//Требования: скорость выполнения команды - O(log n).
+
+
 #include <iostream>
 #include <vector>
 #include <memory>
@@ -150,9 +162,10 @@ private:
 					} else
 						cur_node = left;
 				} else {
-					std::shared_ptr<Node> min = find_min(right);
-					min->right = remove_min(right);
+					std::shared_ptr<Node> min;
+					std::shared_ptr<Node> tree = find_and_remove_min(right, min);
 					min->left = left;
+					min->right = tree;
 					fix_position(min);
 					cur_node = balance(min);
 				}
@@ -163,19 +176,12 @@ private:
 		return fix_positions(nodes, cur_node);
 	}
 
-
-	std::shared_ptr<Node> find_min(std::shared_ptr<Node> node) {
+	std::shared_ptr<Node> find_and_remove_min(std::shared_ptr<Node> node, std::shared_ptr<Node>& min) {
 		if (!node->left) {
-			return node;
-		}
-		return find_min(node->left);
-	}
-
-	std::shared_ptr<Node> remove_min(std::shared_ptr<Node> node) {
-		if (!node->left) {
+			min = node;
 			return node->right;
 		}
-		node->left = remove_min(node->left);
+		node->left = find_and_remove_min(node->left, min);
 		--node->position_;
 		return balance(node);
 	}
