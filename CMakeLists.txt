@@ -3,6 +3,8 @@ project(tp_algorithms)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(tp_algorithms module_2/hw_4/main.cpp)
+include_directories(module_3/hw_1)
 
-add_executable(test module_2/test.cpp)
+add_executable(tp_algorithms module_3/hw_1/ArcGraph.cpp
+        module_3/hw_1/SetGraph.cpp module_3/hw_1/MatrixGraph.cpp
+        module_3/hw_1/ListGraph.cpp module_3/hw_1/main.cpp)
